@@ -1,4 +1,5 @@
 import os
+from groq import Groq
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.llms import Ollama
@@ -42,9 +43,23 @@ def retrieve(query, vectorstore, k=4):
     return results
 
 # ── Generate response ─────────────────────────────────────────────
-def generate(question, context, llm):
+def generate(question, context):
     prompt = SYSTEM_PROMPT.format(context=context, question=question)
-    return llm.invoke(prompt)
+
+    groq_key = os.environ.get("GROQ_API_KEY")
+
+    if groq_key:
+        # Cloud: use Groq
+        client = Groq(api_key=groq_key)
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
+    else:
+        # Local: use Ollama
+        llm = Ollama(model=CHAT_MODEL)
+        return llm.invoke(prompt)
 
 # ── Build context string from chunks ─────────────────────────────
 def build_context(results):
@@ -128,7 +143,6 @@ def main():
     )
 
     vectorstore = load_vectorstore()
-    llm = Ollama(model=CHAT_MODEL)
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -147,7 +161,7 @@ def main():
         with st.spinner("Consulting the texts..."):
             results = retrieve(question, vectorstore)
             context = build_context(results)
-            response = generate(question, context, llm)
+            response = generate(question, context)
 
         st.session_state.messages.append({"role": "assistant", "content": response})
         with st.chat_message("assistant", avatar="✒️"):
