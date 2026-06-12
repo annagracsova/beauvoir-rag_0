@@ -7,3 +7,4 @@ sentence-transformers
 groq
 beautifulsoup4
 torchvision
+protobuf==3.20.3
