@@ -187,10 +187,13 @@ def main():
         with st.sidebar:
             st.subheader("📄 Source passages retrieved")
             st.caption("These are the passages the response was grounded in.")
-            for i, (doc, score) in enumerate(results):
-                with st.expander(f"Passage {i+1} · {doc.metadata.get('source', 'unknown')}"):
-                    st.write(doc.page_content)
-                    st.caption(f"Relevance score: {round(score, 3)}")
+            if "last_sources" in st.session_state:
+                for i, (doc, score) in enumerate(st.session_state.last_sources):
+                    with st.expander(f"Passage {i + 1} · {doc.metadata.get('source', 'unknown')}"):
+                        st.write(doc.page_content)
+                        st.caption(f"Relevance score: {round(score, 3)}")
+            else:
+                st.caption("Ask a question to see source passages here.")
 
 if __name__ == "__main__":
     main()
