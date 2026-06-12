@@ -177,6 +177,7 @@ def main():
 
         with st.spinner("Consulting the texts..."):
             results = retrieve(question, vectorstore)
+            st.session_state.last_sources = results
             context = build_context(results)
             response = generate(question, context)
 
@@ -184,13 +185,13 @@ def main():
         with st.chat_message("assistant", avatar="✒️"):
             st.write(response)
 
-        with st.sidebar:
-            st.subheader("📄 Source passages retrieved")
-            st.caption("These are the passages the response was grounded in.")
-            for i, (doc, score) in enumerate(results):
-                with st.expander(f"Passage {i+1} · {doc.metadata.get('source', 'unknown')}"):
-                    st.write(doc.page_content)
-                    st.caption(f"Relevance score: {round(score, 3)}")
+    with st.sidebar:
+        st.subheader("📄 Source passages retrieved")
+        st.caption("These are the passages the response was grounded in.")
+        for i, (doc, score) in enumerate(results):
+            with st.expander(f"Passage {i+1} · {doc.metadata.get('source', 'unknown')}"):
+                st.write(doc.page_content)
+                st.caption(f"Relevance score: {round(score, 3)}")
 
 if __name__ == "__main__":
     main()
