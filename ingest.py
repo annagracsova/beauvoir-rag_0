@@ -2,7 +2,7 @@ import os
 from bs4 import BeautifulSoup
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings, HuggingFaceEmbeddings
 
 # Load and clean all HTML files from corpus/
 def load_corpus(folder="corpus"):
@@ -37,7 +37,12 @@ def build_vectorstore(chunks):
         shutil.rmtree("vectorstore")
     texts = [c["text"] for c in chunks]
     metadatas = [{"source": c["source"]} for c in chunks]
-    embeddings = OllamaEmbeddings(model="nomic-embed-text")
+    if os.environ.get("STREAMLIT_CLOUD"):
+        embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        )
+    else:
+        embeddings = OllamaEmbeddings(model="nomic-embed-text")
     vectorstore = Chroma.from_texts(
         texts=texts,
         embedding=embeddings,

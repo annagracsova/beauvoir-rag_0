@@ -1,7 +1,7 @@
 import os
 from groq import Groq
 from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings, HuggingFaceEmbeddings
 from langchain_community.llms import Ollama
 import streamlit as st
 
@@ -31,7 +31,12 @@ Your response:"""
 # ── Load vectorstore ──────────────────────────────────────────────
 @st.cache_resource
 def load_vectorstore():
-    embeddings = OllamaEmbeddings(model=EMBED_MODEL)
+    if os.environ.get("STREAMLIT_CLOUD"):
+        embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        )
+    else:
+        embeddings = OllamaEmbeddings(model=EMBED_MODEL)
     return Chroma(
         persist_directory=VECTORSTORE_DIR,
         embedding_function=embeddings
