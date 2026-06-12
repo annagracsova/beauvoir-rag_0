@@ -78,6 +78,12 @@ def apply_styling():
     st.markdown("""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+        
+        [data-testid="stIconMaterial"] {
+        font-family: 'Material Icons' !important;
+        font-size: 18px !important;
+        }
 
         .stApp {
             background-color: #F5F0E8;
@@ -122,10 +128,16 @@ def apply_styling():
             border: 1px solid #C4B89A !important;
             color: #2C2416 !important;
         }
-        .streamlit-expanderHeader {
+       .streamlit-expanderHeader {
             font-family: 'Source Sans 3', sans-serif !important;
             color: #2C2416 !important;
+            padding-left: 24px !important;
         }
+
+        [data-testid="stExpander"] summary {
+            padding-left: 24px !important;
+        }
+    
         </style>
     """, unsafe_allow_html=True)
 
@@ -176,7 +188,7 @@ def main():
             st.subheader("📄 Source passages retrieved")
             st.caption("These are the passages the response was grounded in.")
             for i, (doc, score) in enumerate(results):
-                with st.expander(f"Passage {i+1} — {doc.metadata.get('source', 'unknown')}"):
+                with st.expander(f"Passage {i+1} · {doc.metadata.get('source', 'unknown')}"):
                     st.write(doc.page_content)
                     st.caption(f"Relevance score: {round(score, 3)}")
 
